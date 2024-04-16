@@ -106,12 +106,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			DispatchMessage(&msg);
 		}
 
-		//文字列を格納する
-		std::string str0{ "STRUNG!!!" };
-		
-		//整数を文字列にする
-		std::string str1{ std::to_string(10) };
-
 	}
 
 	return 0;
