@@ -60,8 +60,6 @@ void Log(const std::wstring& message) {
 	OutputDebugStringA(ConvertString(message).c_str());
 }
 
-
-
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
