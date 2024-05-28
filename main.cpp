@@ -555,7 +555,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			ImGui::NewFrame();
 
 			//開発用UIの処理
-			ImGui::ShowDemoWindow();
+			ImGui::Begin("Window");
+			ImGui::ColorEdit3("color", &materialData->x);
+			ImGui::End();
 
 			//バックバッファのインデックスを取得
 			UINT backBufferIndex = swapChain->GetCurrentBackBufferIndex();
