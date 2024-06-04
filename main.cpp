@@ -699,7 +699,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #ifdef _DEBUG
 	debugController->Release();
 #endif 
-	CloseHandle(hwnd);
+	CloseWindow(hwnd);
 
 	//リソースリークチェック
 	IDXGIDebug1* debug;
