@@ -175,7 +175,7 @@ void UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mip
 	//Meta情報を取得
 	const DirectX::TexMetadata metadata = mipImages.GetMetadata();
 	//全MipMapを取得
-	for (size_t mipLevel = 0; mipLevel < metadata.mipLevels; mipLevel) {
+	for (size_t mipLevel = 0; mipLevel < metadata.mipLevels; ++mipLevel) {
 		//MipMapLevelを指定して各Imageを取得
 		const DirectX::Image* img = mipImages.GetImage(mipLevel, 0, 0);
 		//Textureに転移
@@ -649,12 +649,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			ImGui_ImplWin32_NewFrame();
 			ImGui::NewFrame();
 
-			//開発用UIの処理
-			ImGui::Begin("Window");
-			ImGui::ColorEdit3("color", &materialData->x);
-			ImGui::End();
-
-			transfrom.rotate.y += 0.03f;
 			Matrix4x4 worldMatrix = MakeAffineMatrix(transfrom.scale, transfrom.rotate, transfrom.translate);
 			Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransfrom.scale, cameraTransfrom.rotate, cameraTransfrom.translate);
 			Matrix4x4 viewMatrix = Inverse(cameraMatrix);
