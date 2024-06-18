@@ -6,7 +6,7 @@ struct Matrix4x4
 	float m[4][4];
 };
 
-//2次元ベクトルを表す
+//3次元ベクトルを表す
 struct Vector3 {
 	float x;
 	float y;

@@ -20,6 +20,7 @@
   <ItemGroup>
     <None Include=".editorconfig" />
     <None Include="cpp.hint" />
+    <None Include="Object3d.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

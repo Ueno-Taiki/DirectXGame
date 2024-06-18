@@ -95,6 +95,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <None Include=".editorconfig" />
     <None Include="cpp.hint" />
+    <None Include="Object3d.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="externals\imgui\imgui.cpp" />
