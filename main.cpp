@@ -677,9 +677,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	vertexData[5].position = { 0.5f, -0.5f, -0.5f, 1.0f };
 	vertexData[5].texcoord = { 1.0f, 1.0f };
 
-	//Sprite用の頂点リソースを作る
 	ID3D12Resource* vertexResourceSprite = CreateBufferResource(device, sizeof(VertexData) * 6);
-
 	//頂点バッファビューを作成する
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferViewSprite{};
 	//リソースの先頭のアドレスから使う
@@ -688,6 +686,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	vertexBufferViewSprite.SizeInBytes = sizeof(VertexData) * 6;
 	//1頂点あたりのサイズ
 	vertexBufferViewSprite.StrideInBytes = sizeof(VertexData);
+
+	ID3D12Resource* indexResourceSprite = CreateBufferResource(device, sizeof(uint32_t) * 6);
+	D3D12_INDEX_BUFFER_VIEW indexBufferViewSprite{};
+	//リソースの先頭のアドレスから使う
+	indexBufferViewSprite.BufferLocation = indexResourceSprite->GetGPUVirtualAddress();
+	//使用するリソースのサイズはインデックス6つ分のサイズ
+	indexBufferViewSprite.SizeInBytes = sizeof(uint32_t) * 6;
+	//インデックスはuint32_tとする
+	indexBufferViewSprite.Format = DXGI_FORMAT_R32_UINT;
+	//インデックスリソースにデータを書き込む
+	uint32_t* indexDataSprite = nullptr;
+	indexResourceSprite->Map(0, nullptr, reinterpret_cast<void**>(&indexDataSprite));
+	indexDataSprite[0] = 0;  indexDataSprite[1] = 1;  indexDataSprite[2] = 2;
+	indexDataSprite[3] = 1;  indexDataSprite[4] = 3;  indexDataSprite[5] = 2;
 
 	//頂点データを設定する
 	VertexData* vertexDataSprite = nullptr;
@@ -817,8 +829,30 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			//ImGui
 			ImGui::Begin("Setting");
-			ImGui::ColorEdit3("material", &materialData->x);
-			ImGui::DragFloat3("translateSprite", &transformSprite.translate.x);
+			//生成
+			const char* items[] = { "Sprite","Sphere"};
+			static int item_current = 0;
+			ImGui::Combo("Model", &item_current, items, IM_ARRAYSIZE(items));
+			if (ImGui::Button("Create")) {
+
+			}
+			ImGui::Separator();
+			//移動
+			ImGui::SetNextItemOpen(true, 60);
+			if (ImGui::CollapsingHeader("object")) {
+				ImGui::DragFloat3("Translate", &transformSprite.translate.x);
+				ImGui::DragFloat3("Rotate", &transformSprite.rotate.x);
+				ImGui::DragFloat3("Scale", &transformSprite.scale.x);
+				if (ImGui::Button("Delete")) {
+					transformSprite.translate.x = 0.0f, transformSprite.translate.y = 0.0f, transformSprite.translate.z = 0.0f;
+					transformSprite.rotate.x = 0.0f, transformSprite.rotate.y = 0.0f, transformSprite.rotate.z = 0.0f;
+					transformSprite.scale.x = 1.0f, transformSprite.scale.y = 1.0f, transformSprite.scale.z = 1.0f;
+				}
+				ImGui::Indent();
+				if (ImGui::CollapsingHeader("Material")) {
+					ImGui::ColorEdit3("color", &materialData->x);
+				}
+			}
 			ImGui::End();
 
 			//三角形回転
@@ -887,10 +921,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			commandList->DrawInstanced(6, 1, 0, 0);
 			//Spriteの描画
 			commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);  //VBVを設定
+			commandList->IASetIndexBuffer(&indexBufferViewSprite);  //IBVを設定
 			//TransformationMatrixCBufferの場所を設定
 			commandList->SetGraphicsRootConstantBufferView(1, transfromationMatrixResourceSprite->GetGPUVirtualAddress());
 			//描画
 			commandList->DrawInstanced(6, 1, 0, 0);
+			commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
 			ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
 			//状態を遷移
 			barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
