@@ -7,6 +7,8 @@
 #include <dxcapi.h>
 #include <cassert>
 #include <format>
+#include <fstream>
+#include <sstream>
 #include "Matrix.h"
 #include "externals/DirectXTex/DirectXTex.h"
 #include "externals/imgui/imgui.h"
@@ -41,6 +43,12 @@ struct Transform {
 struct VertexData {
 	Vector4 position;
 	Vector2 texcoord;
+	Vector3 normal;
+};
+
+//ModelData構造体
+struct ModelData {
+	std::vector<VertexData> vertices;
 };
 
 //ウインドウブロシージャ
@@ -233,6 +241,71 @@ void UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mip
 			UINT(img->slicePitch)  //1枚サイズ
 		);
 	}
+}
+
+ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename) {
+	//1.中で必要となる変数の宣言
+	ModelData modelData;  //構築するModelData
+	std::vector<Vector4> positions;  //位置
+	std::vector<Vector3> normals;  //法線
+	std::vector<Vector2> texcoords;  //テクスチャ座標
+	std::string line;  //ファイルから読んだ1行を格納するもの
+	//2.ファイルを開く
+	std::ifstream file(directoryPath + "/" + filename);  //ファイルを開く
+	assert(file.is_open());  //とりあえず開けなかったら止める
+	//3.実際にファイルを読み、ModelDataを構築していく
+	while (std::getline(file, line)) {
+		std::string identifier;
+		std::istringstream s(line);
+		s >> identifier;  //先頭の識別子を読む
+
+		//identifierに応じた処理
+		if (identifier == "v") {
+			Vector4 position = {};
+			s >> position.x >> position.y >> position.z;
+			position.w = 1.0f;
+			positions.push_back(position);
+		}
+		else if (identifier == "vt") {
+			Vector2 texcoord = {};
+			s >> texcoord.x >> texcoord.y;
+			texcoords.push_back(texcoord);
+		}
+		else if (identifier == "vn") {
+			Vector3 normal = {};
+			s >> normal.x >> normal.y >> normal.z;
+			normals.push_back(normal);
+		}
+		else if (identifier == "f") {
+			VertexData triangle[3] = {};
+			//面は三角形限定。
+			for (int32_t faceVertex = 0; faceVertex < 3; ++faceVertex) {
+				std::string vertexDefinition;
+				s >> vertexDefinition;
+				//Indexを取得する
+				std::istringstream v(vertexDefinition);
+				uint32_t elementIndices[3] = {};
+				for (int32_t element = 0; element < 3; ++element) {
+					std::string index;
+					std::getline(v, index, '/');  //区切りでインデックスを読んでいく
+					elementIndices[element] = std::stoi(index);
+				}
+				//要素へのIndexから、実際の要素の値を取得して、頂点を構築する
+				Vector4 position = positions[elementIndices[0] - 1];
+				Vector2 texcoord = texcoords[elementIndices[1] - 1];
+				Vector3 normal = normals[elementIndices[2] - 1];
+				position.x *= -1.0f;
+				normal.x *= -1.0f;
+				triangle[faceVertex] = { position, texcoord, normal };
+			}
+			//頂点を逆順で登録することで、回り順を逆にする
+			modelData.vertices.push_back(triangle[2]);
+			modelData.vertices.push_back(triangle[1]);
+			modelData.vertices.push_back(triangle[0]);
+		}
+	}
+	//4.ModelDataを返す
+	return modelData;
 }
 
 IDxcBlob* CompileShader(
@@ -644,38 +717,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		IID_PPV_ARGS(&graphicsPipelineState));
 	assert(SUCCEEDED(hr));
 
-	ID3D12Resource* vertexResource = CreateBufferResource(device, sizeof(VertexData) * 6);
+	//モデル読み込み
+	ModelData modelData = LoadObjFile("resources", "plane.obj");
+	//頂点リソースを作る
+	ID3D12Resource* vertexResource = CreateBufferResource(device, sizeof(VertexData) * modelData.vertices.size());
 	//頂点バッファビューを作成する
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
 	//リソースの先頭のアドレスから使う
 	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
-	//使用するリソースのサイズは頂点3つ分のサイズ
-	vertexBufferView.SizeInBytes = sizeof(VertexData) * 6;
+	//使用するリソースのサイズは頂点のサイズ
+	vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * modelData.vertices.size()); 
 	//1頂点あたりのサイズ
-	vertexBufferView.StrideInBytes = sizeof(VertexData);
+	vertexBufferView.StrideInBytes = sizeof(VertexData);  
 
 	//頂点リソースにデータを書き込む
 	VertexData* vertexData = nullptr;
 	//書き込むためのアドレスを取得
 	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-	//左下
-	vertexData[0].position = { -0.5f, -0.5f, 0.0f, 1.0f };
-	vertexData[0].texcoord = { 0.0f, 1.0f };
-	//上
-	vertexData[1].position = { 0.0f, 0.5f, 0.0f, 1.0f };
-	vertexData[1].texcoord = { 0.5f, 0.0f };
-	//右下
-	vertexData[2].position = { 0.5f, -0.5f, 0.0f, 1.0f };
-	vertexData[2].texcoord = { 1.0f, 1.0f };
-	//左下2
-	vertexData[3].position = { -0.5f, -0.5f, 0.5f, 1.0f };
-	vertexData[3].texcoord = { 0.0f, 1.0f };
-	//上2
-	vertexData[4].position = { 0.0f, 0.0f, 0.0f, 1.0f };
-	vertexData[4].texcoord = { 0.5f, 0.0f };
-	//右下2
-	vertexData[5].position = { 0.5f, -0.5f, -0.5f, 1.0f };
-	vertexData[5].texcoord = { 1.0f, 1.0f };
+	//頂点データをリリースにコピー
+	std::memcpy(vertexData, modelData.vertices.data(), sizeof(VertexData)* modelData.vertices.size());  
 
 	ID3D12Resource* vertexResourceSprite = CreateBufferResource(device, sizeof(VertexData) * 6);
 	//頂点バッファビューを作成する
@@ -837,26 +897,43 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			}
 			ImGui::Separator();
-			//移動
+			//オブジェクト移動
 			ImGui::SetNextItemOpen(true, 60);
-			if (ImGui::CollapsingHeader("object")) {
-				ImGui::DragFloat3("Translate", &transformSprite.translate.x);
-				ImGui::DragFloat3("Rotate", &transformSprite.rotate.x);
-				ImGui::DragFloat3("Scale", &transformSprite.scale.x);
-				if (ImGui::Button("Delete")) {
+			if (ImGui::CollapsingHeader("Object")) {
+				ImGui::DragFloat3("Object.Translate", &transform.translate.x);
+				ImGui::DragFloat3("Object.Rotate", &transform.rotate.x);
+				ImGui::DragFloat3("Object.Scale", &transform.scale.x);
+				if (ImGui::Button("Object.Delete")) {
+					transform.translate.x = 0.0f, transform.translate.y = 0.0f, transform.translate.z = 0.0f;
+					transform.rotate.x = 0.0f, transform.rotate.y = 0.0f, transform.rotate.z = 0.0f;
+					transform.scale.x = 1.0f, transform.scale.y = 1.0f, transform.scale.z = 1.0f;
+				}
+				ImGui::Indent();
+				if (ImGui::CollapsingHeader("Object.Material")) {
+					ImGui::ColorEdit3("color", &materialData->x);
+				}
+				ImGui::Unindent();
+			}
+			//スプライト移動
+			ImGui::SetNextItemOpen(true, 60);
+			if (ImGui::CollapsingHeader("Sprite")) {
+				ImGui::DragFloat3("Sprite.Translate", &transformSprite.translate.x);
+				ImGui::DragFloat3("Sprite.Rotate", &transformSprite.rotate.x);
+				ImGui::DragFloat3("Sprite.Scale", &transformSprite.scale.x);
+				if (ImGui::Button("Sprite.Delete")) {
 					transformSprite.translate.x = 0.0f, transformSprite.translate.y = 0.0f, transformSprite.translate.z = 0.0f;
 					transformSprite.rotate.x = 0.0f, transformSprite.rotate.y = 0.0f, transformSprite.rotate.z = 0.0f;
 					transformSprite.scale.x = 1.0f, transformSprite.scale.y = 1.0f, transformSprite.scale.z = 1.0f;
 				}
 				ImGui::Indent();
-				if (ImGui::CollapsingHeader("Material")) {
+				if (ImGui::CollapsingHeader("Sprite.Material")) {
 					ImGui::ColorEdit3("color", &materialData->x);
 				}
+				ImGui::Unindent();
 			}
 			ImGui::End();
 
 			//三角形回転
-			transform.rotate.y += 0.02f;
 			Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 			Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransfrom.scale, cameraTransfrom.rotate, cameraTransfrom.translate);
 			Matrix4x4 viewMatrix = Inverse(cameraMatrix);
@@ -918,7 +995,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//SRVのDescriptorTableの先頭を設定。
 			commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
 			//描画
-			commandList->DrawInstanced(6, 1, 0, 0);
+			commandList->DrawInstanced(UINT(modelData.vertices.size()), 1, 0, 0);
 			//Spriteの描画
 			commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);  //VBVを設定
 			commandList->IASetIndexBuffer(&indexBufferViewSprite);  //IBVを設定
