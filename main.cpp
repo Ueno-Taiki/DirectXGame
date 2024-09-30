@@ -46,15 +46,15 @@ struct VertexData {
 	Vector3 normal;
 };
 
+//MaterialData構造体
+struct MaterialData {
+	std::string textureFilePath;
+};
+
 //ModelData構造体
 struct ModelData {
 	std::vector<VertexData> vertices;
 	MaterialData material;
-};
-
-//MaterialData構造体
-struct MaterialData {
-	std::string textureFilePath;
 };
 
 //ウインドウブロシージャ
@@ -249,6 +249,31 @@ void UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mip
 	}
 }
 
+MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename) {
+	//1.中で必要となる変数の宣言
+	MaterialData materialData;  //検索するMaterialData
+	std::string line;  //ファイルから読んだ1行を格納するもの
+	//2.ファイルを開く
+	std::ifstream file(directoryPath + "/" + filename);  //ファイルを開く
+	assert(file.is_open());  //とりあえず開けなかったら止める
+	//3.実際にファイルを読み、MaterialDataを検索していく
+	while (std::getline(file, line)) {
+		std::string identifier;
+		std::istringstream s(line);
+		s >> identifier;
+
+		//identifierに応じた処理
+		if (identifier == "map_Kd") {
+			std::string textureFilename;
+			s >> textureFilename;
+			//連結してファイルパスにする
+			materialData.textureFilePath = directoryPath + "/" + textureFilename;
+		}
+	}
+	//4.MaterialDataを返す
+	return materialData;
+}
+
 ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename) {
 	// 1.中で必要となる変数の宣言
 	ModelData modelData;  //構築するModelData
@@ -322,30 +347,7 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 	return modelData;
 }
 
-MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename) {
-	//1.中で必要となる変数の宣言
-	MaterialData materialData;  //検索するMaterialData
-	std::string line;  //ファイルから読んだ1行を格納するもの
-	//2.ファイルを開く
-	std::ifstream file(directoryPath + "/" + filename);  //ファイルを開く
-	assert(file.is_open());  //とりあえず開けなかったら止める
-	//3.実際にファイルを読み、MaterialDataを検索していく
-	while (std::getline(file, line)) {
-		std::string identifier;
-		std::istringstream s(line);
-		s >> identifier;
 
-		//identifierに応じた処理
-		if (identifier == "map_Kd") {
-			std::string textureFilename;
-			s >> textureFilename;
-			//連結してファイルパスにする
-			materialData.textureFilePath = directoryPath + "/" + textureFilename;
-		}
-	}
-	//4.MaterialDataを返す
-	return materialData;
-}
 
 IDxcBlob* CompileShader(
 	//CompilerするShaderファイルへのパス
@@ -711,11 +713,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
 
 	//Shaderをコンパイルする
-	IDxcBlob* vertexShaderBlob = CompileShader(L"Object3D.VS.hlsl",
+	IDxcBlob* vertexShaderBlob = CompileShader(L"resources/shaders/Object3D.VS.hlsl",
 		L"vs_6_0", dxcUtils, dxcCompiler, includeHandler);
 	assert(vertexShaderBlob != nullptr);
 
-	IDxcBlob* pixelShaderBlob = CompileShader(L"Object3D.PS.hlsl",
+	IDxcBlob* pixelShaderBlob = CompileShader(L"resources/shaders/Object3D.PS.hlsl",
 		L"ps_6_0", dxcUtils, dxcCompiler, includeHandler);
 	assert(pixelShaderBlob != nullptr);
 
