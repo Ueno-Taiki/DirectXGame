@@ -770,7 +770,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	assert(SUCCEEDED(hr));
 
 	//モデル読み込み
-	ModelData modelData = LoadObjFile("resources", "plane.obj");
+	ModelData modelData = LoadObjFile("resources", "fence.obj");
 	//頂点リソースを作る
 	ID3D12Resource* vertexResource = CreateBufferResource(device, sizeof(VertexData) * modelData.vertices.size());
 	//頂点バッファビューを作成する
@@ -857,7 +857,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	wvpResource->Map(0, nullptr, reinterpret_cast<void**>(&wvpData));
 	//単位行列を書き込んでおく
 	*wvpData = MakeIdentityx4x4();
-
+	
 	//Textureを読んで転送する
 	DirectX::ScratchImage mipImages = LoadTexture("resources/fence.png");
 	DirectX::ScratchImage mipImages2 = LoadTexture(modelData.material.textureFilePath);
@@ -942,48 +942,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			//ImGui
 			ImGui::Begin("Setting");
-			//生成
-			const char* items[] = { "Sprite","Sphere" };
-			static int item_current = 0;
-			ImGui::Combo("Model", &item_current, items, IM_ARRAYSIZE(items));
-			if (ImGui::Button("Create")) {
 
-			}
-			ImGui::Separator();
-			//オブジェクト移動
-			ImGui::SetNextItemOpen(true, 60);
-			if (ImGui::CollapsingHeader("Object")) {
-				ImGui::DragFloat3("Object.Translate", &transform.translate.x);
-				ImGui::DragFloat3("Object.Rotate", &transform.rotate.x);
-				ImGui::DragFloat3("Object.Scale", &transform.scale.x);
-				if (ImGui::Button("Object.Delete")) {
-					transform.translate.x = 0.0f, transform.translate.y = 0.0f, transform.translate.z = 0.0f;
-					transform.rotate.x = 0.0f, transform.rotate.y = 0.0f, transform.rotate.z = 0.0f;
-					transform.scale.x = 1.0f, transform.scale.y = 1.0f, transform.scale.z = 1.0f;
-				}
-				ImGui::Indent();
-				if (ImGui::CollapsingHeader("Object.Material")) {
-					ImGui::ColorEdit4("color", &materialData->x);
-				}
-				ImGui::Unindent();
-			}
-			//スプライト移動
-			ImGui::SetNextItemOpen(true, 60);
-			if (ImGui::CollapsingHeader("Sprite")) {
-				ImGui::DragFloat3("Sprite.Translate", &transformSprite.translate.x);
-				ImGui::DragFloat3("Sprite.Rotate", &transformSprite.rotate.x);
-				ImGui::DragFloat3("Sprite.Scale", &transformSprite.scale.x);
-				if (ImGui::Button("Sprite.Delete")) {
-					transformSprite.translate.x = 0.0f, transformSprite.translate.y = 0.0f, transformSprite.translate.z = 0.0f;
-					transformSprite.rotate.x = 0.0f, transformSprite.rotate.y = 0.0f, transformSprite.rotate.z = 0.0f;
-					transformSprite.scale.x = 1.0f, transformSprite.scale.y = 1.0f, transformSprite.scale.z = 1.0f;
-				}
-				ImGui::Indent();
-				if (ImGui::CollapsingHeader("Sprite.Material")) {
-					ImGui::ColorEdit4("color", &materialData->x);
-				}
-				ImGui::Unindent();
-			}
+			transform.translate.z = 6.0f;
+			transform.rotate.y = 16.0f;
+
 			ImGui::End();
 
 			//三角形回転
@@ -1050,8 +1012,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//描画
 			commandList->DrawInstanced(UINT(modelData.vertices.size()), 1, 0, 0);
 			//Spriteの描画
-			commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);  //VBVを設定
-			commandList->IASetIndexBuffer(&indexBufferViewSprite);  //IBVを設定
+			//commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);  //VBVを設定
+			//commandList->IASetIndexBuffer(&indexBufferViewSprite);  //IBVを設定
 			//TransformationMatrixCBufferの場所を設定
 			commandList->SetGraphicsRootConstantBufferView(1, transfromationMatrixResourceSprite->GetGPUVirtualAddress());
 			//描画
