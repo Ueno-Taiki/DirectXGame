@@ -904,7 +904,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//入力の初期化
 	input = new Input();
-	input->Initialize();
+	input->Initialize(wc.hInstance, hwnd);
 
 	//ImGuiの初期化。
 	IMGUI_CHECKVERSION();
