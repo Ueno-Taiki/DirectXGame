@@ -10,6 +10,7 @@
 #include <fstream>
 #include <sstream>
 #include "Matrix.h"
+#include "Input.h"
 #include "externals/DirectXTex/DirectXTex.h"
 #include "externals/imgui/imgui.h"
 #include "externals/imgui/imgui_impl_dx12.h"
@@ -419,6 +420,9 @@ IDxcBlob* CompileShader(
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	CoInitializeEx(0, COINIT_MULTITHREADED);
+
+	//ポインタ
+	Input* input = nullptr;
 
 #ifdef _DEBUG
 	ID3D12Debug1* debugController = nullptr;
@@ -898,6 +902,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//DSVHeapの先頭にDSVを作る
 	device->CreateDepthStencilView(depthStencilResource, &dsvDesc, dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
+	//入力の初期化
+	input = new Input();
+	input->Initialize();
+
 	//ImGuiの初期化。
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -1110,6 +1118,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	pixelShaderBlob->Release();
 	vertexShaderBlob->Release();
 	materialResource->Release();
+	//人力解放
+	delete input;
 #ifdef _DEBUG
 	debugController->Release();
 #endif 
