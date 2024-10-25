@@ -983,6 +983,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 			ImGui::End();
 
+			//入力の更新
+			input->Update();
+
 			//三角形回転
 			Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 			Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransfrom.scale, cameraTransfrom.rotate, cameraTransfrom.translate);
