@@ -331,7 +331,7 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 				Vector4 position = positions[elementIndices[0] - 1];
 				Vector2 texcoord = texcoords[elementIndices[1] - 1];
 				Vector3 normal = normals[elementIndices[2] - 1];
-				position.x *= -1.0f;
+				//position.x *= -1.0f;
 				texcoord.y = 1.0f - texcoord.y;
 				normal.x *= -1.0f;
 				triangle[faceVertex] = { position, texcoord, normal };
@@ -979,7 +979,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//Transform変数を作る
 	Transform transform{ {1.0f,1.0f, 1.0f}, {0.0f, 0.0f, 0.0f }, {0.0f, 0.0f, 0.0f } };
-	Transform cameraTransfrom{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f }, {0.0f, 0.0f, -5.0f } };
+	Transform cameraTransfrom{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f }, {1.0f, 1.0f, -10.0f } };
 	Transform transformSprite{ {1.0f,1.0f,1.0},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0} };
 
 	MSG msg{};
@@ -998,9 +998,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			//ImGui
 			ImGui::Begin("Setting");
-
-			transform.translate.z = 5.0f;
-			transform.rotate.y = 16.0f;
 
 			ImGui::End();
 
@@ -1077,21 +1074,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			commandList->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 			//マテリアルCBufferの場所を設定
 			commandList->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
+			//instancing用のDataを読むためにStructredBufferのSRVを設定する
+			commandList->SetGraphicsRootDescriptorTable(1, instancingSrvHandleGPU);
 			//SRVのDescriptorTableの先頭を設定。
 			commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
 			//描画
 			commandList->DrawInstanced(UINT(modelData.vertices.size()), kNumInstance, 0, 0);
-			/*
-			//Spriteの描画
-			//commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);  //VBVを設定
-			commandList->IASetIndexBuffer(&indexBufferViewSprite);  //IBVを設定
-			//TransformationMatrixCBufferの場所を設定
-			commandList->SetGraphicsRootConstantBufferView(1, transfromationMatrixResourceSprite->GetGPUVirtualAddress());
-			//描画
-			commandList->DrawInstanced(6, 1, 0, 0);
-			commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
-			*/
-			ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
+			//ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
 			//状態を遷移
 			barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 			barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
