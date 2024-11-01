@@ -63,6 +63,39 @@ struct ModelData {
 	MaterialData material;
 };
 
+//Particle構造体
+struct Particle {
+	Transform transform;
+	Vector3 velocity;
+	float currentTime;
+};
+
+//代入演算子オーバーロード
+//Vector3の足し算
+Vector3& operator+=(Vector3& lhv, const Vector3& rhv) {
+	lhv.x += rhv.x;
+	lhv.y += rhv.y;
+	lhv.z += rhv.z;
+	return lhv;
+}
+
+const Vector3 operator+(const Vector3& v1, const Vector3& v2) {
+	Vector3 temp(v1);
+	return temp += v2;
+}
+
+//Vector3の掛け算
+Vector3& operator*=(Vector3& v, float s) {
+	v.x *= s;
+	v.y *= s;
+	v.z *= s;
+	return v;
+}
+
+const Vector3 operator*(const Vector3& v, float s) {
+	Vector3 temp(v);
+	return temp *= s;
+}
 //ウインドウブロシージャ
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 
@@ -999,6 +1032,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//ImGui
 			ImGui::Begin("Setting");
 
+			bool useUpdate = false;
+
+			ImGui::Checkbox("Update", &useUpdate);
+
 			ImGui::End();
 
 			//三角形回転
@@ -1017,15 +1054,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			*transfromationMatrixDataSprite = worldViewProjectionMatrixSprite;
 
 			//Transform作成
-			Transform transforms[kNumInstance];
+			Particle particles[kNumInstance];
 			for (uint32_t index = 0; index < kNumInstance; ++index) {
-				transforms[index].scale = { 1.0f, 1.0f, 1.0f };
-				transforms[index].rotate = { 0.0f, 0.0f, 0.0f };
-				transforms[index].translate = { index * 0.1f, index * 0.1f, index * 0.1f };
+				particles[index].transform.scale = { 1.0f, 1.0f, 1.0f };
+				particles[index].transform.rotate = { 0.0f, 0.0f, 0.0f };
+				particles[index].transform.translate = { index * 0.1f, index * 0.1f, index * 0.1f };
+				//速度を上向きに設定
+				particles[index].velocity = { 0.0f, 1.0f, 0.0f };
+
+				//Δtを定義
+				const float kDeltaTime = 1.0f / 60.0f;
+
+				if (useUpdate) {
+					particles[index].transform.translate += particles[index].velocity * kDeltaTime;
+					particles[index].currentTime += kDeltaTime;
+				}
 			}
 
 			for (uint32_t index = 0; index < kNumInstance; ++index) {
-				Matrix4x4 worldMatrix = MakeAffineMatrix(transforms[index].scale, transforms[index].rotate, transforms[index].translate);
+				Matrix4x4 worldMatrix = MakeAffineMatrix(particles[index].transform.scale, particles[index].transform.rotate, particles[index].transform.translate);
 				Matrix4x4 viewProjectionMatrix = Multiply(viewMatrix, projectMatrix);
 				Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, viewProjectionMatrix);
 				instancingData[index].WVP = worldViewProjectionMatrix;
@@ -1080,7 +1127,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
 			//描画
 			commandList->DrawInstanced(UINT(modelData.vertices.size()), kNumInstance, 0, 0);
-			//ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
+			ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
 			//状態を遷移
 			barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 			barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
