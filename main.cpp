@@ -11,11 +11,10 @@
 #include <sstream>
 #include "Matrix.h"
 #include "Input.h"
+#include "WinApp.h"
 #include "externals/DirectXTex/DirectXTex.h"
-#include "externals/imgui/imgui.h"
 #include "externals/imgui/imgui_impl_dx12.h"
 #include "externals/imgui/imgui_impl_win32.h"
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "dxguid.lib")
@@ -57,27 +56,6 @@ struct ModelData {
 	std::vector<VertexData> vertices;
 	MaterialData material;
 };
-
-//ウインドウブロシージャ
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
-
-	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam)) {
-		return true;
-	}
-
-	//メッセージに応じてゲーム固有の処理を行う
-	switch (msg)
-	{
-		//ウインドウが破壊された
-	case WM_DESTROY:
-		//OSに対して、アプリの終了を伝える
-		PostQuitMessage(0);
-		return 0;
-	}
-
-	//標準のメッセージ処理を行う
-	return DefWindowProc(hwnd, msg, wparam, lparam);
-}
 
 std::wstring ConvertString(const std::string& str) {
 	if (str.empty()) {
@@ -421,6 +399,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//ポインタ
 	Input* input = nullptr;
+	WinApp* winApp = nullptr;
 
 #ifdef _DEBUG
 	ID3D12Debug1* debugController = nullptr;
@@ -863,6 +842,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//入力の初期化
 	input = new Input();
 	input->Initialize(wc.hInstance, hwnd);
+	//WindowsAPIの初期化
+	winApp = new WinApp();
+	winApp->Initialize();
 
 	//ImGuiの初期化。
 	IMGUI_CHECKVERSION();
@@ -1081,6 +1063,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	materialResource->Release();
 	//人力解放
 	delete input;
+	//WindowsAPI解放
+	delete winApp;
 #ifdef _DEBUG
 	debugController->Release();
 #endif 
