@@ -507,8 +507,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//スワップチェーンを生成する
 	IDXGISwapChain4* swapChain = nullptr;
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
-	swapChainDesc.Width = kClientWidth;   //画面の幅
-	swapChainDesc.Height = kClientHeight;   //画面の高さ。
+	swapChainDesc.Width = WinApp::kClientWidth;   //画面の幅
+	swapChainDesc.Height = WinApp::kClientHeight;   //画面の高さ。
 	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;   //色の形式
 	swapChainDesc.SampleDesc.Count = 1;   //マルチサンプルしない
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;   //描画のターゲットとして利用する
