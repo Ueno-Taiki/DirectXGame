@@ -3,6 +3,7 @@
 #include <wrl.h>
 #define DIRECTINPUT_VERSION  0x0800
 #include <dinput.h>
+#include "WinApp.h"
 
 //入力
 class Input
@@ -25,12 +26,14 @@ public:
 
 public: //メンバ変数
 	//初期化
-	void Initialize(HINSTANCE hInstance, HWND hwnd);
+	void Initialize(WinApp* winApp);
 	//更新
 	void Update();
 
 private: //メンバ関数
 	//キーボードのデバイス
 	ComPtr<IDirectInputDevice8> keyboard;
+	//windowsAPI
+	WinApp* winApp = nullptr;
 };
 

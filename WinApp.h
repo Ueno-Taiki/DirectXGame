@@ -21,6 +21,9 @@ public: //メンバ変数
 	//getter
 	HINSTANCE GetInstance() const { return wc.hInstance; }
 
+	//終了
+	void Finalize();
+
 public: //定義
 	//クライアント領域のサイズ
 	static const int32_t kClientWidth = 1280;
