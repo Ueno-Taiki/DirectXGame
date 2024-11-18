@@ -1062,10 +1062,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	pixelShaderBlob->Release();
 	vertexShaderBlob->Release();
 	materialResource->Release();
-	//人力解放
-	delete input;
-	//WindowsAPI解放
-	delete winApp;
+
 #ifdef _DEBUG
 	debugController->Release();
 #endif 
@@ -1079,6 +1076,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		debug->ReportLiveObjects(DXGI_DEBUG_D3D12, DXGI_DEBUG_RLO_ALL);
 		debug->Release();
 	}
+
+	//人力解放
+	delete input;
+
+	//WindowsAPI解放
+	delete winApp;
 
 	return 0;
 }
