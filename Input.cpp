@@ -33,7 +33,7 @@ void Input::Update()
 	keyboard->GetDeviceState(sizeof(key), key);
 }
 
-bool Input::PushKey(BYTE keyNumber)
+bool Input::PushKey(BYTE keyNumber) const
 {
 	//指定キーを押していればtrueを返す
 	if (key[keyNumber]) {
@@ -43,7 +43,7 @@ bool Input::PushKey(BYTE keyNumber)
 	return false;
 }
 
-bool Input::TriggerKey(BYTE keyNumber)
+bool Input::TriggerKey(BYTE keyNumber) const
 {
 	//指定キーを押していればtrueを返す
 	if (!keyPre[keyNumber] && key[keyNumber]) {

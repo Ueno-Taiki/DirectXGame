@@ -19,9 +19,9 @@ public:
 	//DirextInputのインスタンス
 	ComPtr<IDirectInput8> directInput;
 
-	bool PushKey(BYTE keyNumber);
+	bool PushKey(BYTE keyNumber) const;
 
-	bool TriggerKey(BYTE keyNumber);
+	bool TriggerKey(BYTE keyNumber) const;
 
 public: //メンバ変数
 	//初期化

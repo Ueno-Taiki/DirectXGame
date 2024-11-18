@@ -23,7 +23,6 @@ LRESULT CALLBACK WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 
 void WinApp::Initialize()
 {
-	WNDCLASS wc{};
 	//ウインドウブロシージャ
 	wc.lpfnWndProc = WindowProc;
 	//ウインドウクラス名
@@ -43,7 +42,7 @@ void WinApp::Initialize()
 	AdjustWindowRect(&wrc, WS_OVERLAPPEDWINDOW, false);
 
 	//ウインドウの生成
-	HWND hwnd = CreateWindow(
+	hwnd = CreateWindow(
 		wc.lpszClassName,   //利用するクラス化
 		L"CG2",   //タイトルバーの文字
 		WS_OVERLAPPEDWINDOW,   //よく見るウインドウスタイル

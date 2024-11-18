@@ -401,6 +401,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Input* input = nullptr;
 	WinApp* winApp = nullptr;
 
+	//WindowsAPIの初期化
+	winApp = new WinApp();
+	winApp->Initialize();
+
+	//入力の初期化
+	input = new Input();
+	input->Initialize(winApp->GetInstance(), winApp->GetHwnd());
+
 #ifdef _DEBUG
 	ID3D12Debug1* debugController = nullptr;
 	if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
@@ -515,7 +523,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	swapChainDesc.BufferCount = 2;   //ダブルバッファ
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;   //モニタうつしたら、中身を破棄
 	//コマンドキュー、ウインドウハンドル、設定を渡して生成する
-	hr = dxgiFactory->CreateSwapChainForHwnd(commandQueue, hwnd, &swapChainDesc, nullptr, nullptr, reinterpret_cast<IDXGISwapChain1**>(&swapChain));
+	hr = dxgiFactory->CreateSwapChainForHwnd(commandQueue, winApp->GetHwnd(), &swapChainDesc, nullptr, nullptr, reinterpret_cast<IDXGISwapChain1**>(&swapChain));
 	assert(SUCCEEDED(hr));
 
 	//RTV用のヒープでディスクリプタの数は2。
@@ -796,13 +804,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	UploadTextureData(textureResource, mipImages);
 
 	//DepthStencilTextureをウィンドウのサイズで作成
-	ID3D12Resource* depthStencilResource = CreateDepthStencilTextureResource(device, kClientWidth, kClientHeight);
+	ID3D12Resource* depthStencilResource = CreateDepthStencilTextureResource(device, WinApp::kClientWidth, WinApp::kClientHeight);
 
 	//ビューボート
 	D3D12_VIEWPORT viewport{};
 	//クライアント領域のサイズと一緒にして画面全体に表示
-	viewport.Width = kClientWidth;
-	viewport.Height = kClientHeight;
+	viewport.Width = WinApp::kClientWidth;
+	viewport.Height = WinApp::kClientHeight;
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
 	viewport.MinDepth = 0.0f;
@@ -812,9 +820,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	D3D12_RECT scissorRect{};
 	//基本的にビューボートと同じ矩形が構成されるようにする
 	scissorRect.left = 0;
-	scissorRect.right = kClientWidth;
+	scissorRect.right = WinApp::kClientWidth;
 	scissorRect.top = 0;
-	scissorRect.bottom = kClientHeight;
+	scissorRect.bottom = WinApp::kClientHeight;
 
 	//metaDataを基にSRVの設定
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
@@ -839,18 +847,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//DSVHeapの先頭にDSVを作る
 	device->CreateDepthStencilView(depthStencilResource, &dsvDesc, dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
-	//入力の初期化
-	input = new Input();
-	input->Initialize(wc.hInstance, hwnd);
-	//WindowsAPIの初期化
-	winApp = new WinApp();
-	winApp->Initialize();
-
 	//ImGuiの初期化。
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGui::StyleColorsDark();
-	ImGui_ImplWin32_Init(hwnd);
+	ImGui_ImplWin32_Init(winApp->GetHwnd());
 	ImGui_ImplDX12_Init(device,
 		swapChainDesc.BufferCount,
 		rtvDesc.Format,
@@ -930,14 +931,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 			Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransfrom.scale, cameraTransfrom.rotate, cameraTransfrom.translate);
 			Matrix4x4 viewMatrix = Inverse(cameraMatrix);
-			Matrix4x4 projectMatrix = MakePerspectiveFovMatrix(0.45f, float(kClientWidth) / float(kClientHeight), 0.1f, 100.0f);
+			Matrix4x4 projectMatrix = MakePerspectiveFovMatrix(0.45f, float(WinApp::kClientWidth) / float(WinApp::kClientHeight), 0.1f, 100.0f);
 			Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectMatrix));
 			*wvpData = worldViewProjectionMatrix;
 
 			//Sprite用のWorldViewProjectionMatrixを作る
 			Matrix4x4 worldMatrixSprite = MakeAffineMatrix(transformSprite.scale, transformSprite.rotate, transformSprite.translate);
 			Matrix4x4 viewMatrixSprite = MakeIdentityx4x4();
-			Matrix4x4 projectMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(kClientWidth), float(kClientHeight), 0.0f, 100.0f);
+			Matrix4x4 projectMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(WinApp::kClientWidth), float(WinApp::kClientHeight), 0.0f, 100.0f);
 			Matrix4x4 worldViewProjectionMatrixSprite = Multiply(worldMatrixSprite, Multiply(viewMatrixSprite, projectMatrixSprite));
 			*transfromationMatrixDataSprite = worldViewProjectionMatrixSprite;
 
@@ -1068,7 +1069,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #ifdef _DEBUG
 	debugController->Release();
 #endif 
-	CloseWindow(hwnd);
+	CloseWindow(winApp->GetHwnd());
 
 	//リソースリークチェック
 	IDXGIDebug1* debug;
