@@ -24,6 +24,9 @@ public: //メンバ変数
 	//終了
 	void Finalize();
 
+	//メッセージの処理
+	bool ProcessMessage();
+
 public: //定義
 	//クライアント領域のサイズ
 	static const int32_t kClientWidth = 1280;
