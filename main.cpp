@@ -419,11 +419,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 #endif
 
-	//DXGIファクトリーの生成
-	IDXGIFactory7* dxgiFactory = nullptr;
-	HRESULT hr = CreateDXGIFactory(IID_PPV_ARGS(&dxgiFactory));
-	assert(SUCCEEDED(hr));
-
 	//使用するアダプタ用の変数。
 	IDXGIAdapter4* useAdapter = nullptr;
 	//良い順にアダプタを頼む
