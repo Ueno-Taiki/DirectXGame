@@ -1015,6 +1015,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Transform cameraTransfrom{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f }, {1.0f, 1.0f, -10.0f } };
 	Transform transformSprite{ {1.0f,1.0f,1.0},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0} };
 
+	//Δtを定義
+	const float kDeltaTime = 1.0f / 60.0f;
+
+	bool useUpdate = false;
+
+	//Transform作成
+	Particle particles[kNumInstance] = {};
+	for (uint32_t index = 0; index < kNumInstance; ++index) {
+		particles[index].transform.scale = { 1.0f, 1.0f, 1.0f };
+		particles[index].transform.rotate = { 0.0f, 0.0f, 0.0f };
+		particles[index].transform.translate = { index * 0.1f, index * 0.1f, index * 0.1f };
+		//速度を上向きに設定
+		particles[index].velocity = { 0.0f, 1.0f, 0.0f };
+	}
+
 	MSG msg{};
 	//ウインドウのxボタンが押されるまでループ
 	while (msg.message != WM_QUIT) {
@@ -1031,8 +1046,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			//ImGui
 			ImGui::Begin("Setting");
-
-			bool useUpdate = false;
 
 			ImGui::Checkbox("Update", &useUpdate);
 
@@ -1053,25 +1066,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			Matrix4x4 worldViewProjectionMatrixSprite = Multiply(worldMatrixSprite, Multiply(viewMatrixSprite, projectMatrixSprite));
 			*transfromationMatrixDataSprite = worldViewProjectionMatrixSprite;
 
-			//Transform作成
-			Particle particles[kNumInstance];
 			for (uint32_t index = 0; index < kNumInstance; ++index) {
-				particles[index].transform.scale = { 1.0f, 1.0f, 1.0f };
-				particles[index].transform.rotate = { 0.0f, 0.0f, 0.0f };
-				particles[index].transform.translate = { index * 0.1f, index * 0.1f, index * 0.1f };
-				//速度を上向きに設定
-				particles[index].velocity = { 0.0f, 1.0f, 0.0f };
-
-				//Δtを定義
-				const float kDeltaTime = 1.0f / 60.0f;
-
 				if (useUpdate) {
 					particles[index].transform.translate += particles[index].velocity * kDeltaTime;
 					particles[index].currentTime += kDeltaTime;
 				}
-			}
-
-			for (uint32_t index = 0; index < kNumInstance; ++index) {
 				Matrix4x4 worldMatrix = MakeAffineMatrix(particles[index].transform.scale, particles[index].transform.rotate, particles[index].transform.translate);
 				Matrix4x4 viewProjectionMatrix = Multiply(viewMatrix, projectMatrix);
 				Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, viewProjectionMatrix);
