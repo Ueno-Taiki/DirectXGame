@@ -23,6 +23,8 @@ LRESULT CALLBACK WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 
 void WinApp::Initialize()
 {
+	HRESULT hr = CoInitializeEx(0, COINITBASE_MULTITHREADED);
+
 	WNDCLASS wc{};
 	//ウインドウブロシージャ
 	wc.lpfnWndProc = WindowProc;
