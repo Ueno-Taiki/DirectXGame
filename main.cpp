@@ -395,7 +395,7 @@ IDxcBlob* CompileShader(
 
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
-	CoInitializeEx(0, COINIT_MULTITHREADED);
+	HRESULT hr;
 
 	//ポインタ
 	Input* input = nullptr;
