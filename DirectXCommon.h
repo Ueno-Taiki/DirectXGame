@@ -13,7 +13,7 @@ class DirectXCommon
 {
 public: //メンバ変数
 	//初期化
-	void Initialize();
+	void Initialize(WinApp* winApp);
 
 	//SRVの指定番号のCPUデスクリプタハンドルを取得する
 	D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPUDescriptorHandle(uint32_t index);

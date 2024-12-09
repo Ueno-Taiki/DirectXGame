@@ -8,7 +8,7 @@
 
 using namespace Microsoft::WRL;
 
-void DirectXCommon::Initialize()
+void DirectXCommon::Initialize(WinApp* winApp)
 {
 	//NULL検出
 	assert(winApp);
