@@ -82,25 +82,31 @@ private:
 	/// <summary>
 	/// メンバ変数
 	/// </summary>
-	ID3D12Debug1* debugController = nullptr;
+	
+	//WindowsAPI
+	WinApp* winApp = nullptr;
 
-	IDXGIFactory7* dxgiFactory = nullptr;
-	ID3D12Device* device = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12Debug1> debugController = nullptr;
 
-	ID3D12CommandQueue* commandQueue = nullptr;
-	ID3D12CommandAllocator* commandAllocator = nullptr;
-	ID3D12GraphicsCommandList* commandList = nullptr;
+	//DXGIファクトリ
+	Microsoft::WRL::ComPtr<IDXGIFactory7> dxgiFactory = nullptr;
+	//DirectX12デバイス
+	Microsoft::WRL::ComPtr<ID3D12Device> device = nullptr;
 
-	IDXGISwapChain4* swapChain = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = nullptr;
+
+	Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain = nullptr;
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
 
-	ID3D12Resource* depthStencilResource = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12Resource> depthStencilResource = nullptr;
 
-	ID3D12DescriptorHeap* descriptorHeap = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap = nullptr;
 
-	ID3D12DescriptorHeap* rtvDescriptorHeap = nullptr;
-	ID3D12DescriptorHeap* srvDescriptorHeap = nullptr;
-	ID3D12DescriptorHeap* dsvDescriptorHeap = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvDescriptorHeap = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvDescriptorHeap = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvDescriptorHeap = nullptr;
 	uint32_t descriptorSizeSRV;
 	uint32_t descriptorSizeRTV;
 	uint32_t descriptorSizeDSV;
@@ -110,7 +116,7 @@ private:
 	//スワップチェーンリソース
 	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, 2> swapChainResources;
 
-	ID3D12Fence* fence = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12Fence> fence = nullptr;
 
 	//ビューボート
 	D3D12_VIEWPORT viewport{};
@@ -121,13 +127,5 @@ private:
 	IDxcUtils* dxcUtils = nullptr;
 	IDxcCompiler3* dxcCompiler = nullptr;
 	IDxcIncludeHandler* includeHandler = nullptr;
-
-	//WindowsAPI
-	WinApp* winApp = nullptr;
-
-	//DirectX12デバイス
-	Microsoft::WRL::ComPtr<ID3D12Device> device;
-	//DXGIファクトリ
-	Microsoft::WRL::ComPtr<IDXGIFactory7> dxgiFactory;
 };
 

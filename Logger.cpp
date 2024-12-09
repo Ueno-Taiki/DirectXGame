@@ -1,4 +1,4 @@
-#include <debugapi.h>
+#include <dxgidebug.h>
 #include "Logger.h"
 
 namespace Logger {
