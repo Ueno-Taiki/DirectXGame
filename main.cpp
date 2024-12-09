@@ -806,13 +806,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 		CoUninitialize();
 
+	*/
+
 	//ImGuiの終了処理
 	ImGui_ImplDX12_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
 
 	//解放処理
-	CloseHandle(fenceEvent);
+	//CloseHandle(fenceEvent);
 
 	CloseWindow(winApp->GetHwnd());
 
@@ -828,7 +830,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//WindowsAPI解放
 	delete winApp;
 	winApp = nullptr;
-	*/
 
 	return 0;
 }
