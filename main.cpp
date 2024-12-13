@@ -860,11 +860,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	device->CreateShaderResourceView(textureResource, &srvDesc, textureSrvHandleCPU);
 
 	//SRVを作成するDescriptorHeapの場所を決める
-	D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU2 = srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU2 = srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-	//先頭はImGuiが使っているのでその次を使う
-	textureSrvHandleCPU2.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	textureSrvHandleGPU2.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU2 = GetCPUDescriptorHandle(srvDescriptorHeap, desriptorSizeSRV, 2);
+	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU2 = GetGPUDescriptorHandle(srvDescriptorHeap, desriptorSizeSRV, 2);
 	//SRVの生成
 	device->CreateShaderResourceView(textureResource2, &srvDesc2, textureSrvHandleCPU2);
 
@@ -892,6 +889,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Transform cameraTransfrom{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f }, {0.0f, 0.0f, -10.0f } };
 	Transform transformSprite{ {1.0f, 1.0f, 1.0},{0.0f, 0.0f, 0.0f},{0.0f, 0.0f, -280.0} };
 
+	bool useMonsterBall = true;
+
 	MSG msg{};
 	//ウインドウのxボタンが押されるまでループ
 	while (msg.message != WM_QUIT) {
@@ -908,6 +907,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			//ImGui
 			ImGui::Begin("Setting");
+			ImGui::Checkbox("useMonsterBall", &useMonsterBall);
 			ImGui::ColorEdit3("material", &materialData->x);
 			ImGui::DragFloat3("translateSprite", &transformSprite.translate.x);
 			ImGui::End();
@@ -974,10 +974,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			commandList->SetGraphicsRootConstantBufferView(1, wvpResource->GetGPUVirtualAddress());
 			//SRVのDescriptorTableの先頭を設定。
 			commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
+			commandList->SetGraphicsRootDescriptorTable(2, useMonsterBall ? textureSrvHandleGPU2 : textureSrvHandleGPU);
 			//描画
 			commandList->DrawInstanced(kVertexCount, 1, 0, 0);
 			//Spriteの描画
 			commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);  //VBVを設定
+			commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
 			//TransformationMatrixCBufferの場所を設定
 			commandList->SetGraphicsRootConstantBufferView(1, transfromationMatrixResourceSprite->GetGPUVirtualAddress());
 			//描画
