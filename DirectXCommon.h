@@ -15,6 +15,12 @@ public: //メンバ変数
 	//初期化
 	void Initialize(WinApp* winApp);
 
+	//描画前処理
+	void PreDraw();
+
+	//描画後処理
+	void PostDraw();
+
 	//SRVの指定番号のCPUデスクリプタハンドルを取得する
 	D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPUDescriptorHandle(uint32_t index);
 
@@ -115,6 +121,8 @@ private:
 
 	//スワップチェーンリソース
 	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, 2> swapChainResources;
+	//RTVを2つ作るのでディスクリプタを2つ用意
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[2] = {};
 
 	Microsoft::WRL::ComPtr<ID3D12Fence> fence = nullptr;
 
@@ -127,5 +135,8 @@ private:
 	IDxcUtils* dxcUtils = nullptr;
 	IDxcCompiler3* dxcCompiler = nullptr;
 	IDxcIncludeHandler* includeHandler = nullptr;
+
+	//フェンス値
+	UINT64 fenceValue = 0;
 };
 
