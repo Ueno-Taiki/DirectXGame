@@ -33,3 +33,10 @@ Matrix4x4 Multiply(const Matrix4x4& m1, const Matrix4x4& m2);
 
 //単位行列の作成
 Matrix4x4 MakeIdentityx4x4();
+
+//内積
+float Dot(const Vector3& v1, const Vector3& v2);
+
+//正規化
+Vector3 Normalize(const Vector3& v);
+

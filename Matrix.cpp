@@ -221,3 +221,26 @@ Matrix4x4 MakeIdentityx4x4()
 
 	return result;
 }
+
+//内積
+float Dot(const Vector3& v1, const Vector3& v2)
+{
+	float result = { 0 };
+
+	result = (v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z);
+
+	return result;
+}
+
+//正規化
+Vector3 Normalize(const Vector3& v) {
+	Vector3 result = { 0 };
+
+	float dot = sqrtf(Dot(v, v));
+
+	result.x = v.x / dot;
+	result.y = v.y / dot;
+	result.z = v.z / dot;
+
+	return result;
+}
