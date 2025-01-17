@@ -15,6 +15,10 @@ struct DirectionalLight {
 	float intensity;  //輝度
 };
 
+struct Camera {
+    float32_t3 worldPosition;
+}
+
 ConstantBuffer<Material> gMaterial : register(b0);
 ConstantBuffer<DirectionalLight> gDirectionalLight : register(b1);
 ConstantBuffer<Camera> gCamera : register(b2);
@@ -35,7 +39,16 @@ PixelShaderOutput main(VertexShaderOutput input){
         float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
         float RdotE = dot(reflectLight, toEye);
         float specularPow = pow(saturate(RdotE), gMaterial.shininess);  //反射強度
-        output.color = gMaterial.color * textureColor * gDirectionalLight.color * cos * gDirectionalLight.intensity;
+        //拡散反射
+        float32_t3 diffuse = 
+        gMaterial.color.rgb = textureColor.rgb * gDirectionalLight.rgb * cos * gDirectionKight.intensity;
+        //鏡面反射
+        floa32_t3 specular =
+        gDirectionLight.color.rgb * gDirectionLight.intensity * specularPow * float32_t3(1.0f, 1.0f, 1.0f);
+        //拡大反射+鏡面反射
+        output.color.rgb = diffuse * specular;
+        //アルファは今まで通り
+        output.color.a = gMaterial.color.a * textureColor.a;
     } else {  //Lightingしない場合
         output.color = gMaterial.color * textureColor;
     }
