@@ -46,7 +46,7 @@ PixelShaderOutput main(VertexShaderOutput input){
         float32_t3 specular =
         gDirectionalLight.color.rgb * gDirectionalLight.intensity * specularPow * float32_t3(1.0f, 1.0f, 1.0f);
         //拡大反射+鏡面反射
-        output.color.rgb = diffuse * specular;
+        output.color.rgb = diffuse + specular;
         //アルファは今まで通り
         output.color.a = gMaterial.color.a * textureColor.a;
     } else {  //Lightingしない場合

@@ -999,7 +999,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 
 	//Transform変数を作る
-	Transform transform{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f }, {0.0f, 0.0f, 0.0f } };
+	Transform transform{ {1.0f, 1.0f, 1.0f}, {0.0f, 4.8f, 0.0f }, {0.0f, 0.0f, 0.0f } };
 	Transform cameraTransfrom{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f }, {0.0f, 0.0f, -10.0f } };
 	Transform transformSprite{ {1.0f, 1.0f, 1.0},{0.0f, 0.0f, 0.0f},{0.0f, 0.0f, -280.0} };
 
@@ -1022,8 +1022,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//ImGui
 			ImGui::Begin("Setting");
 			ImGui::Checkbox("useMonsterBall", &useMonsterBall);
-			ImGui::ColorEdit3("material", &materialData->color.x);
-			ImGui::DragFloat3("translateSprite", &transformSprite.translate.x);
 			ImGui::DragFloat3("light", &directionalLightData->direction.x, 0.01f, -1.0f, 1.0f);
 			ImGui::End();
 
@@ -1031,7 +1029,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			directionalLightData->direction = Normalize(directionalLightData->direction);
 
 			//三角形回転
-			transform.rotate.y += 0.02f;
 			Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 			Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransfrom.scale, cameraTransfrom.rotate, cameraTransfrom.translate);
 			Matrix4x4 viewMatrix = Inverse(cameraMatrix);
@@ -1110,7 +1107,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//マテリアルCBufferの場所を設定
 			commandList->SetGraphicsRootConstantBufferView(0, materialResourceSprite->GetGPUVirtualAddress());
 			//描画
-			commandList->DrawInstanced(6, 1, 0, 0);
+			//commandList->DrawInstanced(6, 1, 0, 0);
 			ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList.Get());
 			//状態を遷移
 			barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
