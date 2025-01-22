@@ -981,10 +981,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Microsoft::WRL::ComPtr<ID3D12Resource> cameraResource = CreateBufferResource(device.Get(), sizeof(CameraForGPU));
 	//マテリアルにデータを書き込む
 	CameraForGPU* cameraData = nullptr;
-	//カメラの位置を指定
-	cameraData->worldPositon = { 0.0f, 0.0f, -10.0f };
 	//書き込むためのアドレスを取得
 	cameraResource->Map(0, nullptr, reinterpret_cast<void**>(&cameraData));
+	//カメラの位置を指定
+	cameraData->worldPositon = { 0.0f, 0.0f, -10.0f };
 
 	//ImGuiの初期化。
 	IMGUI_CHECKVERSION();
