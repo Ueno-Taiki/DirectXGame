@@ -41,9 +41,9 @@ PixelShaderOutput main(VertexShaderOutput input){
         float specularPow = pow(saturate(RdotE), gMaterial.shininess);  //反射強度
         //拡散反射
         float32_t3 diffuse = 
-        gMaterial.color.rgb = textureColor.rgb * gDirectionalLight.rgb * cos * gDirectionalLight.intensity;
+        gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
         //鏡面反射
-        floa32_t3 specular =
+        float32_t3 specular =
         gDirectionalLight.color.rgb * gDirectionalLight.intensity * specularPow * float32_t3(1.0f, 1.0f, 1.0f);
         //拡大反射+鏡面反射
         output.color.rgb = diffuse * specular;
