@@ -5,6 +5,7 @@
 #include <wrl.h>
 #include <dxcapi.h>
 #include <array>
+#include <chrono>
 #include "WinApp.h"
 #include "externals/DirectXTex/DirectXTex.h"
 #include "externals/imgui/imgui_impl_dx12.h"
@@ -84,6 +85,12 @@ private:
 	//ImGuiの初期化
 	void ImGui();
 
+	//FPS固定初期化
+	void InitializeFixFPS();
+
+	//FPS固定更新
+	void UpdateFixFPS();
+
 	//デスクリプタヒープの生成
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible);
 
@@ -148,5 +155,8 @@ private:
 
 	//フェンス値
 	UINT64 fenceValue = 0;
+
+	//記録時間
+	std::chrono::steady_clock::time_point reference_;
 };
 
