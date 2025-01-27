@@ -546,9 +546,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//ImGuiの内部コマンドを生成する
 			ImGui::Render();
 
-			//描画後処理
-			dxCommon->PostDraw();
-
 			//RootSignatureを設定
 			dxCommon->GetCommandList()->SetGraphicsRootSignature(rootSignature.Get());
 			dxCommon->GetCommandList()->SetPipelineState(graphicsPipelineState.Get());  //PSOを設定
@@ -563,6 +560,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
 			//描画
 			dxCommon->GetCommandList()->DrawInstanced(UINT(modelData.vertices.size()), 1, 0, 0);
+
 			//Spriteの描画
 			dxCommon->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);  //VBVを設定
 			dxCommon->GetCommandList()->IASetIndexBuffer(&indexBufferViewSprite);  //IBVを設定
@@ -573,6 +571,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			dxCommon->GetCommandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
 			ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dxCommon->GetCommandList());
 			
+			//描画後処理
+			dxCommon->PostDraw();
 		}
 		CoUninitialize();
 	}
