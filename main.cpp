@@ -12,6 +12,8 @@
 #include "Logger.h"
 #include "StringUtility.h"
 #include "D3DResourceLeakChecker.h"
+#include "SpriteCommon.h"
+#include "Sprite.h"
 #pragma comment(lib, "dxguid.lib")
 #pragma comment(lib, "dxcompiler.lib")
 
@@ -207,6 +209,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Input* input = nullptr;
 	WinApp* winApp = nullptr;
 	DirectXCommon* dxCommon = nullptr;
+	SpriteCommon* spriteCommon = nullptr;
 
 	//WindowsAPIの初期化
 	winApp = new WinApp();
@@ -219,6 +222,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//DirectXの初期化
 	dxCommon = new DirectXCommon();
 	dxCommon->Initialize(winApp);
+
+	//スプライト共通部の初期化
+	spriteCommon = new SpriteCommon;
+	spriteCommon->Initialize();
+
+	//スプライトの初期化
+	Sprite* sprite = new Sprite();
+	sprite->Initialize();
 
 	//RootSignature作成
 	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
@@ -592,6 +603,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//DirectX解放
 	delete dxCommon;
+
+	//スプライト共通部解放
+	delete spriteCommon;
+
+	//スプライト解放
+	delete sprite;
 
 	//WindowsAPI解放
 	delete winApp;
