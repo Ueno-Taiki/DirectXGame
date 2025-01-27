@@ -6,6 +6,7 @@
 #include <dxcapi.h>
 #include <array>
 #include "WinApp.h"
+#include "externals/DirectXTex/DirectXTex.h"
 #include "externals/imgui/imgui_impl_dx12.h"
 #include "externals/imgui/imgui_impl_win32.h"
 
@@ -142,6 +143,8 @@ private:
 	IDxcUtils* dxcUtils = nullptr;
 	IDxcCompiler3* dxcCompiler = nullptr;
 	IDxcIncludeHandler* includeHandler = nullptr;
+
+	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
 
 	//フェンス値
 	UINT64 fenceValue = 0;

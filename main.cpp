@@ -11,7 +11,6 @@
 #include "DirectXCommon.h"
 #include "Logger.h"
 #include "StringUtility.h"
-#include "externals/DirectXTex/DirectXTex.h"
 #include "D3DResourceLeakChecker.h"
 #pragma comment(lib, "dxguid.lib")
 #pragma comment(lib, "dxcompiler.lib")
