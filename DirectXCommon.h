@@ -150,9 +150,9 @@ private:
 	//シザー矩形
 	D3D12_RECT scissorRect{};
 
-	IDxcUtils* dxcUtils = nullptr;
-	IDxcCompiler3* dxcCompiler = nullptr;
-	IDxcIncludeHandler* includeHandler = nullptr;
+	Microsoft::WRL::ComPtr<IDxcUtils> dxcUtils = nullptr;
+	Microsoft::WRL::ComPtr<IDxcCompiler3> dxcCompiler = nullptr;
+	Microsoft::WRL::ComPtr<IDxcIncludeHandler> includeHandler = nullptr;
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
 
