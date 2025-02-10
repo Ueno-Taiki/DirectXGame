@@ -151,6 +151,11 @@ void DirectXCommon::PostDraw()
 //終了処理
 void DirectXCommon::Finalize()
 {
+	//ImGuiの終了処理
+	ImGui_ImplDX12_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+
 	CloseHandle(fenceEvent);
 }
 

@@ -562,13 +562,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		CoUninitialize();
 	}
 
-	//ImGuiの終了処理
-	ImGui_ImplDX12_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
-
-	dxCommon->Finalize();
-
 	CloseWindow(winApp->GetHwnd());
 
 	//人力解放
