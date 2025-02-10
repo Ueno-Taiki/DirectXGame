@@ -210,7 +210,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//スプライト共通部の初期化
 	spriteCommon = new SpriteCommon;
-	spriteCommon->Initialize();
+	spriteCommon->Initialize(dxCommon);
 
 	//スプライトの初期化
 	Sprite* sprite = new Sprite();
@@ -539,15 +539,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//描画前処理
 			dxCommon->PreDraw();
 
+			//Spriteの描画準備
+			spriteCommon->DrawCommon();
+
 			//ImGuiの内部コマンドを生成する
 			ImGui::Render();
 
-			//RootSignatureを設定
-			dxCommon->GetCommandList()->SetGraphicsRootSignature(rootSignature.Get());
-			dxCommon->GetCommandList()->SetPipelineState(graphicsPipelineState.Get());  //PSOを設定
-			dxCommon->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView);  //VBVを設定
-			//形状を設定。
-			dxCommon->GetCommandList()->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 			//マテリアルCBufferの場所を設定
 			dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
 			//wvp用のCBufferの場所を設定
