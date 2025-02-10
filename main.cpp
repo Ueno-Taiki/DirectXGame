@@ -17,21 +17,6 @@
 #pragma comment(lib, "dxguid.lib")
 #pragma comment(lib, "dxcompiler.lib")
 
-class ResourceObject {
-public:
-	ResourceObject(ID3D12Resource* resource)
-		:resource_(resource)
-	{}
-	~ResourceObject() {
-		if (resource_) {
-			resource_->Release();
-		}
-	}
-	ID3D12Resource* Get() { return resource_; }
-private:
-	ID3D12Resource* resource_;
-};
-
 //4次元ベクトルを表す
 struct Vector4 {
 	float x;
@@ -91,7 +76,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> CreateDepthStencilTextureResource(ID3D12D
 	depthClearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;  //フォーマット
 
 	//Resourceの生成
-	ID3D12Resource* resource = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12Resource> resource = nullptr;
 	HRESULT hr = device->CreateCommittedResource(
 		&heapProperties,  //Heapの設定
 		D3D12_HEAP_FLAG_NONE,  //Heapの特殊な設定。
@@ -588,27 +573,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		CoUninitialize();
 	}
 
-	//ImGuiの終了処理
-	ImGui_ImplDX12_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
-
-	CloseWindow(winApp->GetHwnd());
-
 	//人力解放
 	delete input;
 
 	//WindowsAPIの終了処理
-	winApp->Finalize();
+	dxCommon->Finalize();
 
 	//DirectX解放
 	delete dxCommon;
 
-	//スプライト共通部解放
-	delete spriteCommon;
-
 	//スプライト解放
 	delete sprite;
+
+	//スプライト共通部解放
+	delete spriteCommon;
 
 	//WindowsAPI解放
 	delete winApp;
