@@ -562,6 +562,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		CoUninitialize();
 	}
 
+	dxCommon->Finalize();
+
 	CloseWindow(winApp->GetHwnd());
 
 	//人力解放
