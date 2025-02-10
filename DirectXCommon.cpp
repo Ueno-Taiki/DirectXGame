@@ -149,6 +149,17 @@ void DirectXCommon::PostDraw()
 	assert(SUCCEEDED(hr));
 }
 
+//終了処理
+void DirectXCommon::Finalize()
+{
+	//ImGuiの終了処理
+	ImGui_ImplDX12_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+
+	CloseHandle(fenceEvent);
+}
+
 //デバイスの初期化
 void DirectXCommon::Device()
 {

@@ -23,6 +23,9 @@ public: //メンバ変数
 	//描画後処理
 	void PostDraw();
 
+	//終了処理
+	void Finalize();
+
 	//getter
 	ID3D12Device* GetDevice() const { return device.Get(); }
 	ID3D12GraphicsCommandList* GetCommandList() const { return commandList.Get(); }
