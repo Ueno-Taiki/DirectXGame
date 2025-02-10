@@ -562,15 +562,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		CoUninitialize();
 	}
 
-	dxCommon->Finalize();
-
-	CloseWindow(winApp->GetHwnd());
-
 	//人力解放
 	delete input;
 
-	//WindowsAPIの終了処理
-	winApp->Finalize();
+	//DirectXの終了処理
+	dxCommon->Finalize();
 
 	//DirectX解放
 	delete dxCommon;

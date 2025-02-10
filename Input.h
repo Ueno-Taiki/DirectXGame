@@ -34,6 +34,6 @@ private: //メンバ関数
 	//キーボードのデバイス
 	ComPtr<IDirectInputDevice8> keyboard;
 	//windowsAPI
-	WinApp* winApp = nullptr;
+	WinApp* winApp_ = nullptr;
 };
 

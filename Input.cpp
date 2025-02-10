@@ -8,7 +8,7 @@ void Input::Initialize(WinApp* winApp)
 	HRESULT result;
 
 	//借りてきたwinAppのインスタンスを記録
-	this->winApp = winApp;
+	this->winApp_ = winApp;
 	//DirectInputのインスタンス生成
 	result = DirectInput8Create(winApp->GetInstance(), DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&directInput, nullptr);
 	assert(SUCCEEDED(result));
