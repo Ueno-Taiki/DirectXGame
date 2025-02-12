@@ -19,6 +19,14 @@ private:
 	//グラフィックパイプラインの生成
 	void GraphicsPipeline();
 
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature = nullptr;
+
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState = nullptr;
+
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
+
+	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
+
 	DirectXCommon* dxCommon_;
 };
 
