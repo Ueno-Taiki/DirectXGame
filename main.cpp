@@ -184,15 +184,15 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 	return modelData;
 }
 
-typedef void (*PFunc)(int);  //関数ポインタの定義
+typedef void (*PFunc)(float);  //関数ポインタの定義
 
 //コールバック関数
-void DispResult(int Rotate) {
+void DispResult(float Rotate) {
 	Rotate += 0.5f;
 }
 
 //コールバックを実行
-void setTimeout(PFunc p, int second, int Rotate) {
+void setTimeout(PFunc p, int second, float Rotate) {
 	Sleep(second * 1000);  //3秒待つ
 	p(Rotate);  //コールバック関数を呼び出す
 }
@@ -471,54 +471,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			break;
 		}
 		else {
-			//ゲームの処理
-			ImGui_ImplDX12_NewFrame();
-			ImGui_ImplWin32_NewFrame();
-			ImGui::NewFrame();
-
-			//ImGui
-			ImGui::Begin("Setting");
-			//生成
-			const char* items[] = { "Sprite","Sphere" };
-			static int item_current = 0;
-			ImGui::Combo("Model", &item_current, items, IM_ARRAYSIZE(items));
-			if (ImGui::Button("Create")) {}
-			ImGui::Separator();
-			//オブジェクト移動
-			ImGui::SetNextItemOpen(true, 60);
-			if (ImGui::CollapsingHeader("Object")) {
-				ImGui::DragFloat3("Object.Translate", &transform.translate.x);
-				ImGui::DragFloat3("Object.Rotate", &transform.rotate.x);
-				ImGui::DragFloat3("Object.Scale", &transform.scale.x);
-				if (ImGui::Button("Object.Delete")) {
-					transform.translate.x = 0.0f, transform.translate.y = 0.0f, transform.translate.z = 0.0f;
-					transform.rotate.x = 0.0f, transform.rotate.y = 0.0f, transform.rotate.z = 0.0f;
-					transform.scale.x = 1.0f, transform.scale.y = 1.0f, transform.scale.z = 1.0f;
-				}
-				ImGui::Indent();
-				if (ImGui::CollapsingHeader("Object.Material")) {
-					ImGui::ColorEdit3("color", &materialData->x);
-				}
-				ImGui::Unindent();
-			}
-			//スプライト移動
-			ImGui::SetNextItemOpen(true, 60);
-			if (ImGui::CollapsingHeader("Sprite")) {
-				ImGui::DragFloat3("Sprite.Translate", &transformSprite.translate.x);
-				ImGui::DragFloat3("Sprite.Rotate", &transformSprite.rotate.x);
-				ImGui::DragFloat3("Sprite.Scale", &transformSprite.scale.x);
-				if (ImGui::Button("Sprite.Delete")) {
-					transformSprite.translate.x = 0.0f, transformSprite.translate.y = 0.0f, transformSprite.translate.z = 0.0f;
-					transformSprite.rotate.x = 0.0f, transformSprite.rotate.y = 0.0f, transformSprite.rotate.z = 0.0f;
-					transformSprite.scale.x = 1.0f, transformSprite.scale.y = 1.0f, transformSprite.scale.z = 1.0f;
-				}
-				ImGui::Indent();
-				if (ImGui::CollapsingHeader("Sprite.Material")) {
-					ImGui::ColorEdit3("color", &materialData->x);
-				}
-				ImGui::Unindent();
-			}
-			ImGui::End();
 
 			//入力の更新
 			input->Update();
@@ -529,6 +481,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			setTimeout(p, 3, transform.rotate.y);
 
 			//三角形回転
+			transform.rotate.y += 0.5f;
 			Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 			Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransfrom.scale, cameraTransfrom.rotate, cameraTransfrom.translate);
 			Matrix4x4 viewMatrix = Inverse(cameraMatrix);
@@ -545,9 +498,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			//描画前処理
 			dxCommon->PreDraw();
-
-			//ImGuiの内部コマンドを生成する
-			ImGui::Render();
 
 			//RootSignatureを設定
 			dxCommon->GetCommandList()->SetGraphicsRootSignature(rootSignature.Get());
@@ -572,7 +522,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//描画
 			dxCommon->GetCommandList()->DrawInstanced(6, 1, 0, 0);
 			dxCommon->GetCommandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
-			ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dxCommon->GetCommandList().Get());
 			
 			//描画後処理
 			dxCommon->PostDraw();
