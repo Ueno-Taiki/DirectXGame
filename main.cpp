@@ -184,6 +184,19 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 	return modelData;
 }
 
+typedef void (*PFunc)(int);  //関数ポインタの定義
+
+//コールバック関数
+void DispResult(int Rotate) {
+	Rotate += 0.5f;
+}
+
+//コールバックを実行
+void setTimeout(PFunc p, int second, int Rotate) {
+	Sleep(second * 1000);  //3秒待つ
+	p(Rotate);  //コールバック関数を呼び出す
+}
+
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	D3DResourceLeakChecker leakCheck;
@@ -509,6 +522,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			//入力の更新
 			input->Update();
+
+			//コールバック関数を設定
+			PFunc p = DispResult;
+			//3秒待ってから結果を表示
+			setTimeout(p, 3, transform.rotate.y);
 
 			//三角形回転
 			Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
