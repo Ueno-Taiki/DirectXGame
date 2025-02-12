@@ -184,17 +184,13 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 	return modelData;
 }
 
+Transform transform{ {1.0f,1.0f, 1.0f}, {0.0f, 0.0f, 0.0f }, {0.0f, 0.0f, 0.0f } };
+
 typedef void (*PFunc)(float);  //関数ポインタの定義
 
 //コールバック関数
 void DispResult(float Rotate) {
-	Rotate += 0.5f;
-}
-
-//コールバックを実行
-void setTimeout(PFunc p, int second, float Rotate) {
-	Sleep(second * 1000);  //3秒待つ
-	p(Rotate);  //コールバック関数を呼び出す
+	transform.rotate.y += 0.1f;
 }
 
 //Windowsアプリでのエントリーポイント(main関数)
@@ -459,7 +455,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	dxCommon->GetDevice()->CreateShaderResourceView(textureResource.Get(), &srvDesc, textureSrvHandleCPU);
 
 	//Transform変数を作る
-	Transform transform{ {1.0f,1.0f, 1.0f}, {0.0f, 0.0f, 0.0f }, {0.0f, 0.0f, 0.0f } };
 	Transform cameraTransfrom{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f }, {0.0f, 0.0f, -5.0f } };
 	Transform transformSprite{ {1.0f,1.0f,1.0},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0} };
 
@@ -476,12 +471,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			input->Update();
 
 			//コールバック関数を設定
-			PFunc p = DispResult;
-			//3秒待ってから結果を表示
-			setTimeout(p, 3, transform.rotate.y);
+			PFunc callback = DispResult;
+
+			callback(1);
 
 			//三角形回転
-			transform.rotate.y += 0.5f;
 			Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 			Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransfrom.scale, cameraTransfrom.rotate, cameraTransfrom.translate);
 			Matrix4x4 viewMatrix = Inverse(cameraMatrix);
